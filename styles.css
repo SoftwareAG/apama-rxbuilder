@@ -1,0 +1,213 @@
+/* 
+* Copyright 2018 Software AG
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+html, body {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+table, table > * {
+    padding: 0;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+pre {
+    margin: 0;
+}
+
+.scrollArea {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    margin: 0;
+}
+
+.blocklyTreeLabel {
+    font-family: Font Awesome\ 5 Free, sans-serif !important;
+}
+
+.header {
+    background-color: rgba(8,153,204,1);
+    width: 100%;
+}
+
+.header table {
+    width: 100%;
+}
+
+.header .logo {
+    padding-left: 30px;
+    padding-right: 45px;
+}
+
+.menu {
+    font-family: 'Roboto', Arial, sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    color: rgb(255,255,255);
+    white-space: nowrap;
+}
+
+.menu .menu-item {
+    padding-left: 15px;
+    padding-right: 15px;
+    height: 50px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+.menu .spacer {
+    width: 100%;
+}
+
+.menu .gap15 {
+    padding-right: 15px;
+}
+
+.header .menu-item:hover {
+    background-color: rgb(6,122,163);
+}
+
+.header .menu-item:focus {
+    background-color: rgb(6,122,163);
+}
+
+code {
+    -moz-tab-size: 2;
+    -o-tab-size:   2;
+    tab-size:      2;
+}
+
+code .comment {
+    color: forestgreen;
+}
+
+code .string {
+    color: royalblue;
+}
+code .keyword {
+    color: #bd3ac1;
+}
+
+.hover-parent .hover-show {
+     display: inline-block;
+     max-width:0;
+     opacity: 0;
+     white-space: pre;
+
+     transition: max-width 0.5s, opacity 0.5s;
+ }
+
+.hover-parent .hover-appear {
+    display: none;
+}
+
+.hover-parent:hover .hover-show,.hover-parent:focus .hover-show {
+    max-width: 200px;
+    opacity: 1;
+
+    transition: max-width 1s, opacity 1s;
+}
+
+.hover-parent:hover .hover-appear,.hover-parent:focus .hover-appear {
+    display: block;
+}
+
+.menu-item .menu-dropdown {
+    background-color: white;
+    border: 1px solid #ddd;
+    position: absolute;
+    left: 0;
+    top: 50px;
+    z-index: 99999;
+    margin: 0;
+    padding: 5px 0;
+    color: #000;
+}
+
+.menu-dropdown-item {
+    padding: 5px 10px;
+    list-style: none;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.8em;
+}
+
+.menu-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.menu-dropdown-item:hover {
+    background-color: #ddd;
+}
+
+.code-menu {
+    position: absolute;
+    top: 4px;
+    left: 0;
+    margin-right: 14px;
+    height: 50px;
+    z-index: 99;
+    border-collapse: separate;
+}
+
+.code-menu .menu-item {
+    border: 1px solid rgba(50,50,50,0.3);
+    border-radius: 5px;
+    color: rgba(50,50,50,0.3);
+}
+.code-menu .menu-item:hover {
+    background-color: rgba(50,50,50,0.5);
+    color: white;
+}
+
+.copy-code {
+    transition: background-color 0.5s;
+}
+
+.copy-code.done {
+    background-color: rgba(0,128,0,0.5);
+    transition: background-color 0s;
+}
+
+.copy-code.done:hover {
+    background-color: rgba(0,128,0,0.5);
+    transition: background-color 0s;
+}
+
+.os-scrollbar.os-scrollbar-vertical {
+    width: 14px; !important;
+}
+
+.os-scrollbar.os-scrollbar-horizontal {
+    height: 14px !important;
+}
+
+.os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+    background-color: #666 !important;
+}
+
+.blocklyFlyoutLabelText {
+    font-family: sans-serif;
+    font-size: 0.9em;
+}

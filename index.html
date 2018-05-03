@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>RxEPL - Blockly</title>
+
+
+    <link type="text/css" href="OverlayScrollbars.min.css" rel="stylesheet"/>
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="styles.css">
+
+    <script src="array.prototype.fill.js"></script>
+    <script src="clipboard-polyfill.js"></script>
+    <script src="OverlayScrollbars.min.js"></script>
+    <script src="FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+    <script src="https://cdn.rawgit.com/caridy/es6-micro-loader/f25b6e98/dist/system-polyfill.min.js"></script>
+    <script src="https://cdn.rawgit.com/google/blockly/e0be7e49/blockly_compressed.js"></script>
+    <script src="https://cdn.rawgit.com/google/blockly/e0be7e49/msg/js/en.js"></script>
+    <script src="index.js"></script>
+    <script src="https://cdn.rawgit.com/SPE-Systemhaus/blockly-type-indicator/ddf0ab91628afea8224a1281cb09b5694f82e0c5/typeIndicator.js"></script>
+</head>
+<body>
+    <table width="100%" height="100%">
+        <tr height="50" class="header menu">
+            <td colspan="2">
+                <table>
+                    <tr>
+                        <td class="logo">RxEPL Builder</td>
+                        <td class="menu-item hover-parent new-workspace"><i class="fas fa-file"></i><span class="hover-show"> New</span></td>
+                        <td class="menu-item hover-parent save-workspace"><i class="fas fa-save"></i><span class="hover-show"> Save</span></td>
+                        <td class="menu-item hover-parent open-workspace"><i class="fas fa-folder-open"></i><span class="hover-show"> Load</span><input id="load-file" type="file" style="position: absolute; left: -1000px;"/></td>
+                        <td class="menu-item hover-parent export-workspace"><i class="fas fa-download"></i><span class="hover-show"> Export EPL</span></td>
+                        <td tabindex="0" class="menu-item hover-parent"><i class="fas fa-flask"></i><span class="hover-show"> Samples</span><ul class="hover-appear menu-dropdown">
+                            <li class="menu-dropdown-item sample-avg" >Calculate A Moving Average</li>
+                            <li class="menu-dropdown-item sample-repeat" >Repeat Latest Value Every 10 Seconds</li>
+                        </ul></td>
+                        <td class="spacer"></td>
+                        <td class="menu-item hover-parent"><i class="fas fa-question-circle"></i><span class="hover-show"> Help</span></td>
+                        <td class="gap15"></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td id="blocklyArea" style="width:70%;"></td>
+            <td id="codeArea" style="width:30%;"></td>
+        </tr>
+    </table>
+    <div id="blocklyDiv" style="position: absolute"></div>
+    <div id="codeDiv" style="position: absolute">
+        <table class="menu code-menu">
+            <tr>
+                <td class="spacer"></td>
+                <td class="menu-item hover-parent copy-code"><i class="fas fa-copy"></i><span class="hover-show"> Copy to Clipboard</span></td>
+            </tr>
+        </table>
+        <div class="scrollArea">
+            <pre style="padding:5px;"><code id="codeOutput"></code></pre>
+        </div>
+    </div>
+
+    <xml id="toolbox" style="display: none">
+        <category name=" Sources">
+            <block type="from_channel"></block>
+            <block type="from_stream"></block>
+            <block type="from_values"></block>
+            <block type="interval"></block>
+        </category>
+
+        <category name=" Operators">
+            <block type="operators">
+                <statement name="Operators">
+                    <shadow type="map">
+                        <value name="Action">
+                            <shadow type="lambda">
+                                <field name="Arg">x</field>
+                                <field name="Expression">x</field>
+                            </shadow>
+                        </value>
+                    </shadow>
+                </statement>
+            </block>
+        </category>
+            <category name="  Transforming">
+                <block type="map">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x * 10</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="scan_with_initial">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">sum, value</field>
+                            <field name="Expression">sum + value</field>
+                        </shadow>
+                    </value>
+                    <value name="Initial">
+                        <block type="value">
+                            <field name="value">0.0</field>
+                        </block>
+                    </value>
+                </block>
+                <block type="flat_map">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">[x, x + 1]</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="buffer_count"></block>
+                <block type="buffer_count_skip"></block>
+                <block type="pairwise"></block>
+                <block type="buffer_time"></block>
+                <block type="moving_count_window">
+                    <statement name="Operators">
+                        <shadow type="average"></shadow>
+                    </statement>
+                </block>
+                <block type="group_by_for_each">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">order</field>
+                            <field name="Expression">order.productId</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="window_time_for_each">
+                    <statement name="Operators">
+                        <shadow type="average"></shadow>
+                    </statement>
+                </block>
+            </category>
+
+            <category name="  Filtering">
+                <block type="filter">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x > 10</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="distinct"></block>
+                <block type="distinct_by">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x.uniqueId</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="distinct_until_changed"></block>
+                <block type="distinct_by_until_changed">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x.uniqueId</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="take"></block>
+                <block type="take_last"></block>
+                <block type="skip"></block>
+                <block type="skip_last"></block>
+                <block type="ignore_elements"></block>
+            </category>
+
+            <category name="   Combining"><!-- Deliberately uses extra space so that the icon aligns better -->
+                <block type="with_latest_from">
+                    <value name="Combiner">
+                        <shadow type="lambda">
+                            <field name="Arg">main, merged</field>
+                            <field name="Expression">[main, merged]</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="combine_latest">
+                    <value name="Combiner">
+                        <shadow type="lambda">
+                            <field name="Arg">main, merged</field>
+                            <field name="Expression">[main, merged]</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="merge"></block>
+                <block type="zip">
+                    <value name="Combiner">
+                        <shadow type="lambda">
+                            <field name="Arg">main, merged</field>
+                            <field name="Expression">[main, merged]</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="concat"></block>
+                <block type="start_with"></block>
+            </category>
+
+            <category name="  Error Handling">
+                <block type="catch_error"></block>
+                <block type="retry"></block>
+            </category>
+
+            <category name="  Utilities">
+                <block type="delay"></block>
+                <block type="repeat"></block>
+                <block type="throttle"></block>
+                <block type="timestamp"></block>
+                <block type="timeout"></block>
+            </category>
+
+            <category name="  Conditional & Boolean">
+                <block type="contains">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x > 10</field>
+                        </shadow>
+                    </value>
+                </block>
+                <block type="every">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x > 10</field>
+                        </shadow>
+                    </value>
+                </block>
+            </category>
+            <category name="  Math & Aggregation">
+                <block type="reduce_with_initial">
+                    <value name="Action">
+                        <shadow type="lambda">
+                            <field name="Arg">sum, value</field>
+                            <field name="Expression">sum + value</field>
+                        </shadow>
+                    </value>
+                    <value name="Initial">
+                        <block type="value">
+                            <field name="value">0.0</field>
+                        </block>
+                    </value>
+                </block>
+                <block type="average"></block>
+                <block type="count"></block>
+                <block type="sum"></block>
+                <block type="max"></block>
+                <block type="min"></block>
+                <block type="concat_string"></block>
+            </category>
+
+        <category name=" Output">
+            <block type="to_channel"></block>
+            <block type="subscribe"></block>
+            <block type="log_value">
+                <field name="logLevel">INFO</field>
+            </block>
+            <block type="custom_action"></block>
+        </category>
+
+        <category name=" Functions & Lambdas">
+            <block type="lambda"></block>
+            <block type="custom_action"></block>
+        </category>
+
+        <sep></sep>
+        <category name=" Variables" custom="USER_VARS"></category>
+
+        <sep></sep>
+        <category name=" Custom Operators" custom="CUSTOM_OPERATORS">
+        </category>
+
+        <sep></sep>
+        <category name=" Prebuilt Operators"></category>
+            <category name="  Detecting">
+                <label text="Prebuilt operators are split into 2 sections:\n - Operators (Configurable, but cannot be edited)\n - Custom Operator Definitions (Can be renamed and modified)"></label>
+                <block type="threshold"></block>
+                <block type="corridor">
+                    <value name="Value">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x.value</field>
+                        </block>
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x.value</field>
+                        </shadow>
+                    </value>
+                    <value name="Upper">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">20</field>
+                        </block>
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">20</field>
+                        </shadow>
+                    </value>
+                    <value name="Lower">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">20</field>
+                        </block>
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">10</field>
+                        </shadow>
+                    </value>
+                </block>
+
+                <label text="To use the following Custom Operators, drag the definition into the window, and then\ndrag in the operator from the 'Custom Operators' Category (On the left)"></label>
+
+                <block type="custom_operator_definition">
+                    <comment h="120" w="300">Outputs when a threshold is crossed (In either direction)&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">bidirectionalThreshold</field>
+                    <statement name="Operators">
+                        <block type="pairwise">
+                            <next>
+                                <block type="filter">
+                                    <value name="Action">
+                                        <shadow type="lambda">
+                                            <field name="Arg">x</field>
+                                            <field name="Expression">x &gt; 10</field>
+                                        </shadow>
+                                        <block type="lambda">
+                                            <field name="Arg">[prev, current]</field>
+                                            <field name="Expression">(current &gt; 30 and prev &lt;= 30) or (current &lt; 30 and prev &gt;= 30)</field>
+                                        </block>
+                                    </value>
+                                </block>
+                            </next>
+                        </block>
+                    </statement>
+                </block>
+
+                <block type="custom_operator_definition">
+                    <comment h="120" w="300">Outputs when a value is leaves a corridor defined by the std deviation&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">spike</field>
+                    <statement name="Operators">
+                        <block type="volatility_bands">
+                            <field name="StdDevs">2</field>
+                            <field name="Count">5</field>
+                            <next>
+                                <block type="corridor">
+                                    <value name="Value">
+                                        <shadow type="lambda">
+                                            <field name="Arg">x</field>
+                                            <field name="Expression">x.value</field>
+                                        </shadow>
+                                        <block type="lambda">
+                                            <field name="Arg">x</field>
+                                            <field name="Expression">x.value</field>
+                                        </block>
+                                    </value>
+                                    <value name="Upper">
+                                        <shadow type="lambda">
+                                            <field name="Arg">x</field>
+                                            <field name="Expression">20</field>
+                                        </shadow>
+                                        <block type="lambda">
+                                            <field name="Arg">x</field>
+                                            <field name="Expression">x.upperBound</field>
+                                        </block>
+                                    </value>
+                                    <value name="Lower">
+                                        <shadow type="lambda">
+                                            <field name="Arg">x</field>
+                                            <field name="Expression">10</field>
+                                        </shadow>
+                                        <block type="lambda">
+                                            <field name="Arg">x</field>
+                                            <field name="Expression">x.lowerBound</field>
+                                        </block>
+                                    </value>
+                                </block>
+                            </next>
+                        </block>
+                    </statement>
+                </block>
+
+                <block type="complex_custom_operator_definition">
+                    <field name="OperatorName">missingData</field>
+                    <comment h="120" w="300">Outputs when a value is not seen within a period&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <value name="Arg">
+                        <block type="custom_operator_arg"></block>
+                    </value>
+                    <statement name="Code">
+                        <block type="set_var">
+                            <field name="Variable">output</field>
+                            <value name="Observable">
+                                <block type="operators">
+                                    <value name="SourceObservable">
+                                        <block type="custom_operator_arg"></block>
+                                    </value>
+                                    <statement name="Operators">
+                                        <shadow type="map">
+                                            <value name="Action">
+                                                <shadow type="lambda">
+                                                    <field name="Arg">x</field>
+                                                    <field name="Expression">x</field>
+                                                </shadow>
+                                            </value>
+                                        </shadow>
+                                        <block type="timeout">
+                                            <field name="Duration">10</field>
+                                            <next>
+                                                <block type="ignore_elements">
+                                                    <next>
+                                                        <block type="catch_error">
+                                                            <value name="OnError">
+                                                                <block type="operators">
+                                                                    <value name="SourceObservable">
+                                                                        <block type="from_values">
+                                                                            <field name="Values">"Did not receive value in 10 seconds"</field>
+                                                                        </block>
+                                                                    </value>
+                                                                    <statement name="Operators">
+                                                                        <shadow type="map">
+                                                                            <value name="Action">
+                                                                                <shadow type="lambda">
+                                                                                    <field name="Arg">x</field>
+                                                                                    <field name="Expression">x</field>
+                                                                                </shadow>
+                                                                            </value>
+                                                                        </shadow>
+                                                                        <block type="concat">
+                                                                            <value name="OtherObservable">
+                                                                                <block type="operators">
+                                                                                    <value name="SourceObservable">
+                                                                                        <block type="custom_operator_arg"></block>
+                                                                                    </value>
+                                                                                    <statement name="Operators">
+                                                                                        <shadow type="map">
+                                                                                            <value name="Action">
+                                                                                                <shadow type="lambda">
+                                                                                                    <field name="Arg">x</field>
+                                                                                                    <field name="Expression">x</field>
+                                                                                                </shadow>
+                                                                                            </value>
+                                                                                        </shadow>
+                                                                                        <block type="custom_operator">
+                                                                                            <mutation operator-name="missingData"></mutation>
+                                                                                        </block>
+                                                                                    </statement>
+                                                                                </block>
+                                                                            </value>
+                                                                        </block>
+                                                                    </statement>
+                                                                </block>
+                                                            </value>
+                                                        </block>
+                                                    </next>
+                                                </block>
+                                            </next>
+                                        </block>
+                                    </statement>
+                                </block>
+                            </value>
+                        </block>
+                    </statement>
+                    <value name="Return">
+                        <shadow type="custom_operator_arg"></shadow>
+                        <block type="get_var">
+                            <field name="Variable">output</field>
+                        </block>
+                    </value>
+                </block>
+
+                <block type="complex_custom_operator_definition">
+                    <field name="OperatorName">peerAnalysis</field>
+                    <comment h="140" w="300">Compare a source with its peers, outputting if the value is significantly different&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <value name="Arg">
+                        <block type="custom_operator_arg"></block>
+                    </value>
+                    <statement name="Code">
+                        <block type="set_var">
+                            <field name="Variable">avgFromPeers</field>
+                            <value name="Observable">
+                                <block type="operators">
+                                    <value name="SourceObservable">
+                                        <block type="custom_operator_arg"></block>
+                                    </value>
+                                    <statement name="Operators">
+                                        <shadow type="map">
+                                            <value name="Action">
+                                                <shadow type="lambda">
+                                                    <field name="Arg">x</field>
+                                                    <field name="Expression">x</field>
+                                                </shadow>
+                                            </value>
+                                        </shadow>
+                                        <block type="window_time_for_each">
+                                            <field name="Duration">5</field>
+                                            <statement name="Operators">
+                                                <shadow type="average"></shadow>
+                                                <block type="group_by_for_each">
+                                                    <value name="Action">
+                                                        <shadow type="lambda">
+                                                            <field name="Arg">data</field>
+                                                            <field name="Expression">data.sourceId</field>
+                                                        </shadow>
+                                                        <block type="lambda">
+                                                            <field name="Arg">data</field>
+                                                            <field name="Expression">data.sourceId</field>
+                                                        </block>
+                                                    </value>
+                                                    <statement name="Operators">
+                                                        <block type="map">
+                                                            <value name="Action">
+                                                                <shadow type="lambda">
+                                                                    <field name="Arg">x</field>
+                                                                    <field name="Expression">x * 10</field>
+                                                                </shadow>
+                                                                <block type="lambda">
+                                                                    <field name="Arg">data</field>
+                                                                    <field name="Expression">data.dValue</field>
+                                                                </block>
+                                                            </value>
+                                                            <next>
+                                                                <block type="average"></block>
+                                                            </next>
+                                                        </block>
+                                                    </statement>
+                                                    <next>
+                                                        <block type="average"></block>
+                                                    </next>
+                                                </block>
+                                            </statement>
+                                        </block>
+                                    </statement>
+                                </block>
+                            </value>
+                            <next>
+                                <block type="set_var">
+                                    <field name="Variable">result</field>
+                                    <value name="Observable">
+                                        <block type="operators">
+                                            <value name="SourceObservable">
+                                                <block type="custom_operator_arg"></block>
+                                            </value>
+                                            <statement name="Operators">
+                                                <shadow type="map">
+                                                    <value name="Action">
+                                                        <shadow type="lambda">
+                                                            <field name="Arg">x</field>
+                                                            <field name="Expression">x</field>
+                                                        </shadow>
+                                                    </value>
+                                                </shadow>
+                                                <block type="with_latest_from">
+                                                    <value name="OtherObservable">
+                                                        <block type="get_var">
+                                                            <field name="Variable">avgFromPeers</field>
+                                                        </block>
+                                                    </value>
+                                                    <value name="Combiner">
+                                                        <shadow type="lambda">
+                                                            <field name="Arg">main, merged</field>
+                                                            <field name="Expression">main, merged</field>
+                                                        </shadow>
+                                                        <block type="lambda">
+                                                            <field name="Arg">value, avg</field>
+                                                            <field name="Expression">value &gt; avg ? value - avg : avg - value</field>
+                                                        </block>
+                                                    </value>
+                                                    <next>
+                                                        <block type="threshold">
+                                                            <field name="Direction">Rising</field>
+                                                            <field name="Threshold">15</field>
+                                                        </block>
+                                                    </next>
+                                                </block>
+                                            </statement>
+                                        </block>
+                                    </value>
+                                </block>
+                            </next>
+                        </block>
+                    </statement>
+                    <value name="Return">
+                        <shadow type="custom_operator_arg"></shadow>
+                        <block type="get_var">
+                            <field name="Variable">result</field>
+                        </block>
+                    </value>
+                </block>
+
+            </category>
+            <category name="  Calculating">
+                <label text="Prebuilt operators are split into 2 sections:\n - Operators (Configurable, but cannot be edited)\n - Custom Operator Definitions (Can be renamed and modified)"></label>
+                <block type="moving_average"></block>
+                <block type="delta"></block>
+                <block type="variance"></block>
+                <block type="moving_gradient"></block>
+                <block type="volatility_bands"></block>
+
+                <label text="To use the following Custom Operators, drag the definition into the window, and then\ndrag in the operator from the 'Custom Operators' Category (On the left)"></label>
+
+                <block type="custom_operator_definition">
+                    <comment h="120" w="300">Calculate the event rate during the specified period&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">eventRate</field>
+                    <statement name="Operators">
+                        <block type="window_time_for_each">
+                            <field name="Duration">5</field>
+                            <statement name="Operators">
+                                <shadow type="average"></shadow>
+                                <block type="count">
+                                    <next>
+                                        <block type="map">
+                                            <value name="Action">
+                                                <shadow type="lambda">
+                                                    <field name="Arg">x</field>
+                                                    <field name="Expression">x * 10</field>
+                                                </shadow>
+                                                <block type="lambda">
+                                                    <field name="Arg">count</field>
+                                                    <field name="Expression">count / 5</field>
+                                                </block>
+                                            </value>
+                                        </block>
+                                    </next>
+                                </block>
+                            </statement>
+                        </block>
+                    </statement>
+                </block>
+
+                <block type="custom_operator_definition">
+                    <comment h="120" w="300">Calculate the moving average for the last 'n' numeric values&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">movingAverage</field>
+                    <statement name="Operators">
+                        <block type="moving_count_window">
+                            <field name="count">5</field>
+                            <field name="skip">1</field>
+                            <statement name="Operators">
+                                <shadow type="average"></shadow>
+                                <block type="average"></block>
+                            </statement>
+                        </block>
+                    </statement>
+                </block>
+
+                <block type="custom_operator_definition">
+                    <comment h="140" w="300">Calculate the numeric difference between the current value and the previous value&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">delta</field>
+                    <statement name="Operators">
+                        <block type="pairwise">
+                            <next>
+                                <block type="map">
+                                    <value name="Action">
+                                        <shadow type="lambda">
+                                            <field name="Arg">x</field>
+                                            <field name="Expression">x * 10</field>
+                                        </shadow>
+                                        <block type="lambda">
+                                            <field name="Arg">[prev, current]</field>
+                                            <field name="Expression">current - prev</field>
+                                        </block>
+                                    </value>
+                                </block>
+                            </next>
+                        </block>
+                    </statement>
+                </block>
+
+                <block type="custom_operator_definition">
+                    <comment h="120" w="300">Calculate the gradient from the last 'n' values&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">movingGradient</field>
+                    <statement name="Operators">
+                        <block type="timestamp">
+                            <next>
+                                <block type="moving_count_window">
+                                    <field name="count">5</field>
+                                    <field name="skip">1</field>
+                                    <statement name="Operators">
+                                        <shadow type="average"></shadow>
+                                        <block type="pairwise">
+                                            <next>
+                                                <block type="map">
+                                                    <value name="Action">
+                                                        <shadow type="lambda">
+                                                            <field name="Arg">x</field>
+                                                            <field name="Expression">x * 10</field>
+                                                        </shadow>
+                                                        <block type="lambda">
+                                                            <field name="Arg">[prev, current]</field>
+                                                            <field name="Expression">(current.value - prev.value) / (current.timestamp - prev.timestamp)</field>
+                                                        </block>
+                                                    </value>
+                                                    <next>
+                                                        <block type="average"></block>
+                                                    </next>
+                                                </block>
+                                            </next>
+                                        </block>
+                                    </statement>
+                                </block>
+                            </next>
+                        </block>
+                    </statement>
+                </block>
+
+                <block type="custom_operator_definition">
+                    <comment h="120" w="300">Calculate the numeric maximum of the last 'n' values&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">movingMax</field>
+                    <statement name="Operators">
+                        <block type="moving_count_window">
+                            <field name="count">5</field>
+                            <field name="skip">1</field>
+                            <statement name="Operators">
+                                <shadow type="average"></shadow>
+                                <block type="max"></block>
+                            </statement>
+                        </block>
+                    </statement>
+                </block>
+
+                <block type="custom_operator_definition">
+                    <comment h="120" w="300">Calculate the numeric minimum of the last 'n' values&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">movingMin</field>
+                    <statement name="Operators">
+                        <block type="moving_count_window">
+                            <field name="count">5</field>
+                            <field name="skip">1</field>
+                            <statement name="Operators">
+                                <shadow type="average"></shadow>
+                                <block type="min"></block>
+                            </statement>
+                        </block>
+                    </statement>
+                </block>
+
+                <block type="custom_operator_definition">
+                    <comment h="120" w="300">Calculate the sample variance of the last 'n' numeric values&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">sampleVariance</field>
+                    <statement name="Operators">
+                        <block type="scan_with_initial">
+                            <value name="Action">
+                                <shadow type="lambda">
+                                    <field name="Arg">sum, value</field>
+                                    <field name="Expression">sum + value</field>
+                                </shadow>
+                                <block type="lambda">
+                                    <field name="Arg">[m2, prevAvg, prevCount], value</field>
+                                    <field name="Expression">[m2 + (value - prevAvg) * (value - (prevAvg + (value - prevAvg) / (prevCount + 1))), (prevAvg + (value - prevAvg) / (prevCount + 1)), prevCount + 1]</field>
+                                </block>
+                            </value>
+                            <value name="Initial">
+                                <block type="value" movable="false">
+                                    <field name="value">[0, 0, 0]</field>
+                                </block>
+                            </value>
+                            <next>
+                                <block type="skip">
+                                    <field name="count">1</field>
+                                    <next>
+                                        <block type="take_last">
+                                            <field name="count">1</field>
+                                            <next>
+                                                <block type="map">
+                                                    <value name="Action">
+                                                        <shadow type="lambda">
+                                                            <field name="Arg">x</field>
+                                                            <field name="Expression">x * 10</field>
+                                                        </shadow>
+                                                        <block type="lambda">
+                                                            <field name="Arg">[m2, avg, count]</field>
+                                                            <field name="Expression">m2 / (count - 1)</field>
+                                                        </block>
+                                                    </value>
+                                                </block>
+                                            </next>
+                                        </block>
+                                    </next>
+                                </block>
+                            </next>
+                        </block>
+                    </statement>
+                </block>
+
+                <block type="custom_operator_definition">
+                    <comment h="140" w="300">Calculate upper and lower Bollinger bands. The result is a sequence [upper, lower, avg, value].&#10;&#10;To use this operator:&#10;Drag in the appropriate operator from the "Custom Operators" tab</comment>
+                    <field name="OperatorName">bollingerBand</field>
+                    <statement name="Operators">
+                        <block type="moving_count_window">
+                            <field name="count">5</field>
+                            <field name="skip">1</field>
+                            <statement name="Operators">
+                                <shadow type="average"></shadow>
+                                <block type="scan_with_initial">
+                                    <value name="Action">
+                                        <shadow type="lambda">
+                                            <field name="Arg">sum, value</field>
+                                            <field name="Expression">sum + value</field>
+                                        </shadow>
+                                        <block type="lambda">
+                                            <field name="Arg">[m2, prevAvg, prevCount], value</field>
+                                            <field name="Expression">[m2 + (value - prevAvg) * (value - (prevAvg + (value - prevAvg) / (prevCount + 1))), (prevAvg + (value - prevAvg) / (prevCount + 1)), prevCount + 1, value]</field>
+                                        </block>
+                                    </value>
+                                    <value name="Initial">
+                                        <block type="value" movable="false">
+                                            <field name="value">[0, 0, 0]</field>
+                                        </block>
+                                    </value>
+                                    <next>
+                                        <block type="skip">
+                                            <field name="count">1</field>
+                                            <next>
+                                                <block type="take_last">
+                                                    <field name="count">1</field>
+                                                    <next>
+                                                        <block type="map">
+                                                            <value name="Action">
+                                                                <shadow type="lambda">
+                                                                    <field name="Arg">x</field>
+                                                                    <field name="Expression">x * 10</field>
+                                                                </shadow>
+                                                                <block type="lambda">
+                                                                    <field name="Arg">[m2, avg, count, value]</field>
+                                                                    <field name="Expression">[(m2 / (count - 1)).sqrt(), avg, value]</field>
+                                                                </block>
+                                                            </value>
+                                                        </block>
+                                                    </next>
+                                                </block>
+                                            </next>
+                                        </block>
+                                    </next>
+                                </block>
+                            </statement>
+                            <next>
+                                <block type="map">
+                                    <value name="Action">
+                                        <shadow type="lambda">
+                                            <field name="Arg">x</field>
+                                            <field name="Expression">x * 10</field>
+                                        </shadow>
+                                        <block type="lambda">
+                                            <field name="Arg">[stdDev, avg, value]</field>
+                                            <field name="Expression">[avg + std, avg - std, avg, value]</field>
+                                        </block>
+                                    </value>
+                                </block>
+                            </next>
+                        </block>
+                    </statement>
+                </block>
+
+            </category>
+
+        <sep></sep>
+        <category name=" External Connectivity"></category>
+            <category name="  Industry Analytics Kit">
+                <block type="iak_from"></block>
+
+                <block type="iak_to">
+                    <value name="StreamName">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">"MyChannel"</field>
+                        </block>
+                    </value>
+                    <value name="timestamp">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">currentTime.toDecimal()</field>
+                        </block>
+                    </value>
+                    <value name="dValue">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x.toDecimal()</field>
+                        </block>
+                    </value>
+                    <value name="sValue">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x</field>
+                        </block>
+                    </value>
+                    <value name="xValue">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x.toFloat()</field>
+                        </block>
+                    </value>
+                </block>
+            </category>
+
+            <category name="  Cumulocity IoT">
+                <block type="c8y_from_measurement"></block>
+                <block type="c8y_to_measurement">
+                    <value name="Type">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">"c8y_LightMeasurement"</field>
+                        </block>
+                    </value>
+                    <value name="Source">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">"12346081"</field>
+                        </block>
+                    </value>
+                    <value name="Timestamp">
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">currentTime</field>
+                        </block>
+                    </value>
+                    <value name="FragmentName">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">"c8y_LightMeasurement"</field>
+                        </shadow>
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">"c8y_LightMeasurement"</field>
+                        </block>
+                    </value>
+                    <value name="SeriesName">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">"e"</field>
+                        </shadow>
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">"e"</field>
+                        </block>
+                    </value>
+                    <value name="MeasurementValue">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">15.0</field>
+                        </shadow>
+                    </value>
+                    <value name="MeasurementUnit">
+                        <shadow type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">"lux"</field>
+                        </shadow>
+                        <block type="lambda">
+                            <field name="Arg">x</field>
+                            <field name="Expression">"lux"</field>
+                        </block>
+                    </value>
+                </block>
+            </category>
+    </xml>
+
+    <xml id="workspace" style="display: none">
+        <block xmlns="http://www.w3.org/1999/xhtml" type="subscribe">
+            <value name="SourceObservable">
+                <block type="operators">
+                    <value name="SourceObservable">
+                        <block type="from_channel">
+                            <field name="CHANNEL_NAME">TemperatureSensorReading</field>
+                            <comment pinned="true" h="67" w="196" dx="3" dy="-234">1) Get the temperature readings from a channel</comment>
+                        </block>
+                    </value>
+                    <statement name="Operators">
+                        <shadow type="map">
+                            <value name="Action">
+                                <shadow type="lambda">
+                                    <field name="Arg">x</field>
+                                    <field name="Expression">x</field>
+                                </shadow>
+                            </value>
+                        </shadow>
+                        <block type="map">
+                            <comment pinned="true" h="86" w="195" dx="-253" dy="-200">2) For each reading, get the temperature and convert it from Fahrenheit to Celsius</comment>
+                            <value name="Action">
+                                <shadow type="lambda">
+                                    <field name="Arg">x</field>
+                                    <field name="Expression">x * 10</field>
+                                </shadow>
+                                <block type="lambda">
+                                    <field name="Arg">reading</field>
+                                    <field name="Expression">(reading.tempF - 32) * 5 / 9 + "°C"</field>
+                                </block>
+                            </value>
+                        </block>
+                    </statement>
+                </block>
+            </value>
+            <value name="onNext">
+                <block type="log_value">
+                    <field name="logLevel">INFO</field>
+                    <comment pinned="true" h="40" w="220" dx="-87" dy="154">3) On every value log it</comment>
+                </block>
+            </value>
+        </block>
+    </xml>
+
+    <xml id="sample-repeat" style="display:none">
+        <block type="subscribe">
+            <value name="SourceObservable">
+                <block type="operators">
+                    <value name="SourceObservable">
+                        <block type="interval">
+                            <field name="Interval">10</field>
+                        </block>
+                    </value>
+                    <statement name="Operators">
+                        <shadow type="map">
+                            <value name="Action">
+                                <shadow type="lambda">
+                                    <field name="Arg">x</field>
+                                    <field name="Expression">x</field>
+                                </shadow>
+                            </value>
+                        </shadow>
+                        <block type="with_latest_from">
+                            <value name="OtherObservable">
+                                <block type="from_channel">
+                                    <field name="CHANNEL_NAME">SomeDataChannel</field>
+                                </block>
+                            </value>
+                            <value name="Combiner">
+                                <shadow type="lambda">
+                                    <field name="Arg">main, merged</field>
+                                    <field name="Expression">[main, merged]</field>
+                                </shadow>
+                                <block type="lambda">
+                                    <field name="Arg">[timer, value]</field>
+                                    <field name="Expression">value</field>
+                                </block>
+                            </value>
+                        </block>
+                    </statement>
+                </block>
+            </value>
+            <value name="onNext">
+                <block type="log_value">
+                    <field name="logLevel">INFO</field>
+                </block>
+            </value>
+        </block>
+    </xml>
+
+    <xml id="sample-avg" style="display:none;">
+        <variables></variables>
+        <block type="subscribe" id="%w!)tpfGi;NuD`hG67A2" x="-14" y="-31">
+            <value name="SourceObservable">
+                <block type="operators" id="V%W!xl8E!tK61!6JD|-%">
+                    <value name="SourceObservable">
+                        <block type="from_channel" id="BHB0Q);.h#}:ptfNCX1O">
+                            <field name="CHANNEL_NAME">TemperatureReadings</field>
+                        </block>
+                    </value>
+                    <statement name="Operators">
+                        <shadow type="map">
+                            <value name="Action">
+                                <shadow type="lambda">
+                                    <field name="Arg">x</field>
+                                    <field name="Expression">x</field>
+                                </shadow>
+                            </value>
+                        </shadow>
+                        <block type="map" id="*YajDDV+){#5bv{c(y~t">
+                            <value name="Action">
+                                <shadow type="lambda" id="-s%a[`I:-e[KA/2X2=I,">
+                                    <field name="Arg">x</field>
+                                    <field name="Expression">x * 10</field>
+                                </shadow>
+                                <block type="lambda" id="M}~1bggNQm|WkQfR|j/w">
+                                    <field name="Arg">value</field>
+                                    <field name="Expression">value.temp</field>
+                                </block>
+                            </value>
+                            <next>
+                                <block type="custom_operator" id="]SG^u0p9KJiKG!759yIb">
+                                    <mutation operator-name="movingAverage"></mutation>
+                                </block>
+                            </next>
+                        </block>
+                    </statement>
+                </block>
+            </value>
+            <value name="onNext">
+                <block type="log_value" id="eRIc%UmM:g[6S`RAqe}O">
+                    <field name="logLevel">INFO</field>
+                </block>
+            </value>
+        </block>
+        <block type="custom_operator_definition" id="]eeQ5$K1?eW1@C6o]`2M" x="-11" y="180">
+            <field name="OperatorName">movingAverage</field>
+            <statement name="Operators">
+                <block type="moving_count_window" id="Vm)I*O$lo$Jy#c-Iy8FN">
+                    <field name="count">5</field>
+                    <field name="skip">1</field>
+                    <statement name="Operators">
+                        <shadow type="average"></shadow>
+                        <block type="average" id=")WFXUS;3RN{mk%=To//v"></block>
+                    </statement>
+                </block>
+            </statement>
+        </block>
+    </xml>
+    <script>System.import('index'); </script>
+</body>
+</html>
