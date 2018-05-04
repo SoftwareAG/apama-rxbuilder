@@ -1,7 +1,8 @@
 # The RxBuilder for RxEPL on Apama
-[Available here](https://softwareag.github.io/apama-rxbuilder/)
+The [RxEPL Builder](https://softwareag.github.io/apama-rxbuilder/) allows you to create your [RxEPL](https://github.com/SoftwareAG/apama-rxepl) project without having to touch any code.
 
 <a href="https://softwareag.github.io/apama-rxbuilder/"><img src="https://softwareag.github.io/apama-rxbuilder/images/RxEPL.png" width="800"><a>
+
 
 ------------------------------
 
